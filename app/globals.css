@@ -1,26 +1,98 @@
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------ */
+/*  Design tokens — Twitter/X-profile inspired dark theme.            */
+/*  Edit --accent to re-theme, --cover for the header banner color.   */
+/* ------------------------------------------------------------------ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000;
+  --surface: #16181c;
+  --surface-hover: #1d1f23;
+  --edge: #2f3336;
+  --edge-strong: #536471;
+  --foreground: #e7e9ea;
+  --muted: #71767b;
+  --faint: #565a5f;
+
+  /* Accent — hot pink, used for links, active tab and buttons. */
+  --accent: #f91880;
+  --accent-strong: #ff4d9d;
+  --accent-soft: rgba(249, 24, 128, 0.1);
+
+  /* Cover banner fallback color (until public/images/cover.jpg exists). */
+  --cover: #cfe3f5;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-edge: var(--edge);
+  --color-edge-strong: var(--edge-strong);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-cover: var(--cover);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Anchor targets clear the sticky tab bar. */
+[data-section] {
+  scroll-margin-top: 3.5rem;
+}
+
+/* Scroll-reveal. The class is added client-side by <Reveal>, and only to
+   content below the fold — server-rendered markup is never hidden. */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.55s ease,
+    transform 0.55s ease;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }

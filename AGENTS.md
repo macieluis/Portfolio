@@ -7,3 +7,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+
+<claude-mem-context>
+# Memory Context
+
+# [portfolio] recent context, 2026-08-20 3:04am GMT+0
+
+No previous sessions found.
+</claude-mem-context>
