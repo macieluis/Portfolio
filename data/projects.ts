@@ -153,6 +153,28 @@ export const projects: Project[] = [
       // TODO: add the repository URL once it is public on GitHub.
     },
     image: "/images/projects/e2ee-chat.png",
+    images: [
+      {
+        src: "/images/projects/e2ee-chat-chat.png",
+        alt: "E2EE Chat 1:1 conversation with an active P2P link",
+        caption: "1:1 conversation — bubbles, header and composer with a direct P2P link active",
+      },
+      {
+        src: "/images/projects/e2ee-chat-security.png",
+        alt: "E2EE Chat certificate viewer showing a CA-signed identity and its SHA-256 fingerprint",
+        caption: "Certificate viewer — CA-signed identity and fingerprint, no server-issued passwords involved",
+      },
+      {
+        src: "/images/projects/e2ee-chat-light.png",
+        alt: "E2EE Chat interface in light mode",
+        caption: "Light mode",
+      },
+      {
+        src: "/images/projects/e2ee-chat-mobile.png",
+        alt: "E2EE Chat mobile layout with a conversation open",
+        caption: "Mobile layout",
+      },
+    ],
   },
   {
     slug: "trustybet",
