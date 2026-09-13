@@ -43,6 +43,12 @@ export interface Project {
   };
   /** Path under /public, e.g. "/images/projects/my-project.png". */
   image?: string;
+  /** Optional screenshot gallery shown on the detail page, below the opening summary. */
+  images?: {
+    src: string;
+    alt: string;
+    caption?: string;
+  }[];
 }
 
 export const projects: Project[] = [
@@ -146,6 +152,7 @@ export const projects: Project[] = [
     links: {
       // TODO: add the repository URL once it is public on GitHub.
     },
+    image: "/images/projects/e2ee-chat.png",
   },
   {
     slug: "trustybet",
@@ -202,25 +209,86 @@ export const projects: Project[] = [
   {
     slug: "spotifum",
     name: "SpotifUM",
-    category: "Java · OOP",
+    category: "Java Desktop Music Platform",
     summary:
-      "A music-management application built for the Object-Oriented Programming course at the University of Minho — a JUnit-tested, MVC-structured Java domain model.",
-    wip: true,
+      "A JavaFX desktop music platform built on a rich object-oriented domain model, with listener, artist and admin experiences, playlist management, logical playback, analytics and backwards-compatible persistence.",
     problem:
-      "The OOP course project: model a Spotify-like music service — users, playlists, music library, playback statistics — with a clean object-oriented design.",
+      "How do you turn a console-driven, object-oriented Java application into a polished desktop product without destabilizing its existing domain model, persistence format and behavior? SpotifUM already had a real domain — users, artists, playlists, statistics — behind nothing but a text menu.",
     solution:
-      "A Java 23 application built with Gradle, organized as MVC (controller, views, menus) over domain packages for users, musics, playlists and statistics, with custom exceptions, Javadoc and a JUnit 5 test suite.",
-    stack: ["Java", "Gradle", "JUnit 5"],
+      "A layered JavaFX desktop app built on top of the untouched original domain, with three role-based experiences sharing one application core: Listeners get Home, Search, Library, playlist management, logical playback with a persistent player and a Statistics dashboard; Artists get a Studio for publishing and editing tracks and managing albums; Admins get a dashboard, user and artist management, catalogue administration, cross-account statistics and save/load. Views stay thin, controllers call application services with zero JavaFX imports, and every service calls the exact same domain managers the original console still uses today — so the CLI and the GUI never fork into two sources of truth. Ships with a bundled, entirely fictional demo library so every screen is populated on first launch.",
+    stack: ["Java 23", "JavaFX", "Gradle", "JUnit 5", "Java Serialization"],
     highlights: [
-      "MVC architecture separating controller, views and menu navigation from the domain model",
-      "Domain packages for users, musics, playlists and playback statistics",
-      "Custom exception hierarchy for domain errors",
-      "20 JUnit 5 test classes covering the domain model",
-      "Gradle build with Javadoc generation and a documented UML class diagram",
+      "Three real polymorphic hierarchies driving behavior, not decoration: User (Free → Premium Base → Premium Top) decides playlist ownership and leaderboard rate by concrete class; Playlist splits into Premium/Favourite vs. Random; Music splits into ExplicitMusic and MultimediaMusic as real subtypes",
+      "Logical playback — no bundled audio — with play/pause, next/previous, progress and playlist context, feeding the real Statistics subsystem on every play",
+      "Statistics dashboard with real charts: top tracks/artists, genre distribution, a cross-account leaderboard and per-listener history",
+      "Admin console mirroring the original CLI's admin capabilities exactly — user/artist/catalogue management, plan reassignment, persistence — nothing invented on top",
+      "Backwards-compatible Java serialization: every persisted class keeps its original serialVersionUID, verified by a test that still loads a save file from the project's first commit",
+      "304 automated tests: domain, JavaFX-free service-layer, and dedicated identity/cascade/serialization regression tests",
     ],
-    links: {
-      // TODO: add the repository URL once it is public on GitHub.
+    detail: {
+      architecture:
+        "JavaFX Views → Controllers → Application Services → the shared SpotifUM Facade / Managers → the original OOP Domain. Services (SessionService, PlaylistService, StatisticsService, AdminService, …) hold zero JavaFX imports and never re-implement a rule the domain already has; the console and the desktop app share one application core, so a change is visible to both interfaces and neither can drift from the other. Nothing about the original domain was rewritten — it was extended.",
+      decisions: [
+        "Kept the console interface running unmodified instead of retiring it, as living proof that the GUI evolution didn't fork the business logic into two versions.",
+        "Resolved a stable-identity bug at the statistics layer with UUID-based lookups instead of changing User's global equals/hashCode, keeping the fix local to where the problem actually was.",
+        "Resolved artist-rename attribution by the track's own stable id instead of the mutable display name stored on the track, so renaming an artist can't strand plays their older tracks already earned.",
+      ],
+      challenges: [
+        "Backwards-compatible serialization: additive method changes on Serializable classes silently altered their auto-generated serialVersionUID. Recovered and pinned every affected class's original baseline UID, then added a regression test that loads a real save file captured from the project's first commit against every later build.",
+        "Stable user identity: a subscription-plan change replaces a User's concrete class while its UUID stays the same, but the statistics maps were keyed on the object itself — splitting one logical account's history in two across an upgrade. Fixed by resolving by UUID at the statistics layer.",
+        "Artist attribution after rename: Music stores its artist as a display-name string, so a rename could silently orphan a track's historical plays. Resolved by attributing plays through the track's own id instead.",
+        "A latent bug in two Music subclasses where equals() called itself instead of delegating to the parent, so comparing two distinct instances recursed forever into a StackOverflowError. Fixed with a one-line delegation to Music.equals(), pinned by 4 regression tests.",
+        "Ran a ~1,000-navigation stress pass after a scare during development to rule out a JavaFX memory leak: no accumulating View/Controller retention, only a small, bounded CSS-cache growth inherent to the JavaFX toolkit itself.",
+      ],
+      results: [
+        "A complete JavaFX desktop experience across all three roles, with the original CLI still fully operational alongside it.",
+        "304 automated tests passing, including dedicated identity, cascade and serialization-compatibility regressions.",
+        "A save file from the project's very first commit still loads correctly in the current build.",
+        "A deterministic, populated demo dataset (15 artists, 88 tracks, 28 playlists, 357 recorded plays across 60 simulated days) so every screen shows real data immediately.",
+      ],
+      improvements: [
+        "A couple of narrower pre-existing domain quirks (e.g. exact-duplicate removal from a playlist) were deliberately left as documented rather than opportunistically fixed — the goal was safe evolution of an existing codebase, not a rewrite.",
+      ],
+      lessons: [
+        "Most of the real work in evolving an existing codebase is archaeology: understanding exactly what a method already guarantees — equality, identity, serialization — before adding a single new screen on top of it.",
+      ],
     },
+    links: {
+      github: "https://github.com/macieluis/SpotifUM",
+    },
+    image: "/images/projects/spotifum/playlist-player.png",
+    images: [
+      {
+        src: "/images/projects/spotifum/home.png",
+        alt: "SpotifUM listener Home screen",
+        caption: "Home — listener dashboard and playlist overview",
+      },
+      {
+        src: "/images/projects/spotifum/search.png",
+        alt: "SpotifUM search results across tracks, albums and artists",
+        caption: "Search — cross-entity catalogue search",
+      },
+      {
+        src: "/images/projects/spotifum/playlist-player.png",
+        alt: "SpotifUM playlist view with the persistent player bar active",
+        caption: "Playlist & playback — playlist management with the persistent logical player",
+      },
+      {
+        src: "/images/projects/spotifum/statistics.png",
+        alt: "SpotifUM statistics dashboard with charts and leaderboard",
+        caption: "Statistics — listening analytics, genre distribution and leaderboard",
+      },
+      {
+        src: "/images/projects/spotifum/artist-studio.png",
+        alt: "SpotifUM Artist Studio showing tracks and albums",
+        caption: "Artist Studio — track and album catalogue management",
+      },
+      {
+        src: "/images/projects/spotifum/admin-dashboard.png",
+        alt: "SpotifUM admin dashboard with system counts",
+        caption: "Admin — system overview and account/catalogue administration",
+      },
+    ],
   },
 ];
 

@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { ProjectImage } from "@/components/ProjectImage";
 import { TechBadge } from "@/components/TechBadge";
 import { getProject, projects } from "@/data/projects";
+import type { Project } from "@/data/projects";
 
 export function generateStaticParams() {
   return projects.map((project) => ({ slug: project.slug }));
@@ -53,6 +54,32 @@ function DetailBlock({ title, items }: DetailBlockProps) {
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+/** Optional screenshot gallery; renders nothing when a project has none. */
+function ProjectGallery({ images }: { images?: Project["images"] }) {
+  if (!images || images.length === 0) return null;
+  return (
+    <section aria-label="Screenshots" className="border-b border-edge px-4 py-5">
+      <h2 className="text-lg font-extrabold tracking-tight">Screenshots</h2>
+      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {images.map((item) => (
+          <figure key={item.src} className="min-w-0">
+            <div className="overflow-hidden rounded-2xl border border-edge">
+              <div className="aspect-[16/10]">
+                <ProjectImage src={item.src} alt={item.alt} label={item.alt} />
+              </div>
+            </div>
+            {item.caption && (
+              <figcaption className="mt-2 text-[13px] leading-relaxed text-muted">
+                {item.caption}
+              </figcaption>
+            )}
+          </figure>
+        ))}
+      </div>
     </section>
   );
 }
@@ -180,6 +207,8 @@ export default async function ProjectPage({
             ))}
           </ul>
         </section>
+
+        <ProjectGallery images={project.images} />
 
         {project.detail?.architecture && (
           <section
